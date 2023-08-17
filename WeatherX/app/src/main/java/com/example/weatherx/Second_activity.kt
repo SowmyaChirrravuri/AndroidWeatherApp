@@ -10,11 +10,8 @@ class SecondActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.second_activity)
-
         val textViewWeatherData = findViewById<TextView>(R.id.secondscreen)
-
-        val receivedIntent = intent
-        val receivedData = receivedIntent.getStringExtra("key sender")
+        val receivedData = intent.getStringExtra("key sender")
         textViewWeatherData.text = receivedData
     }
 }

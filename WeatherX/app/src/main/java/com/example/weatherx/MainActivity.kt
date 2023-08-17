@@ -1,6 +1,8 @@
 package com.example.weatherx
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences.Editor
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -14,13 +16,24 @@ import com.example.weatherx.view.WeatherData
 
 import com.example.weatherx.viewModel.weatherViewModel
 
+const val CITY_NAME_KEY = "CITY"
+const val SHARE_PREF = "sharedPreferences"
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<weatherViewModel>()
     private lateinit var binding: ActivityMainBinding
+    private lateinit var cityName: String
+    private lateinit var editor: Editor
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sharedpref = getSharedPreferences(SHARE_PREF, Context.MODE_PRIVATE)
+        editor = sharedpref.edit()
+
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -31,13 +44,16 @@ class MainActivity : ComponentActivity() {
         })
 
         binding.buttonPerformRequest.setOnClickListener {
-            val cityName = binding.editTextCity.text.toString()
-            viewModel.getWeatherData(city = binding.editTextCity.text.toString())
+            cityName = binding.editTextCity.text.toString()
+            viewModel.getWeatherData(cityName)
 
         }
-
+        binding.buttonLoadData.setOnClickListener {
+            val city = sharedpref.getString(CITY_NAME_KEY, "")
+            binding.editTextCity.setText(city)
         }
 
+    }
 
 
     private fun render(uiState: Uistate) {
@@ -66,10 +82,8 @@ class MainActivity : ComponentActivity() {
             progressBar.visibility = View.INVISIBLE
             buttonPerformRequest.isEnabled = true
         }
-
-        val intent = Intent(this, SecondActivity::class.java)
-        intent.putExtra("key sender", uiState.data.toString())
-        startActivity(intent)
+        storeCityInSharedPreferences()
+        navigateToNewScreen(uiState)
     }
 
     private fun onError(uiState: Uistate.error) {
@@ -78,6 +92,16 @@ class MainActivity : ComponentActivity() {
             buttonPerformRequest.isEnabled = true
         }
         Toast.makeText(this, uiState.message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun storeCityInSharedPreferences() {
+        editor.putString(CITY_NAME_KEY, cityName).commit()
+    }
+
+    private fun navigateToNewScreen(uiState: Uistate.Success) {
+        val intent = Intent(this, SecondActivity::class.java)
+        intent.putExtra("key sender", uiState.data.toString())
+        startActivity(intent)
     }
 }
 
