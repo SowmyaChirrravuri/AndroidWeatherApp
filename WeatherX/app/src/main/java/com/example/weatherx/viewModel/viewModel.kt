@@ -1,25 +1,34 @@
 package com.example.weatherx.viewModel
+
+import android.annotation.SuppressLint
+import android.view.LayoutInflater
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherx.Model.repo
+import com.example.weatherx.Uistate
 
 import com.example.weatherx.view.WeatherData
 import kotlinx.coroutines.launch
 
 class weatherViewModel : ViewModel() {
+    val uiState = MutableLiveData<Uistate>()
     val weatherItems = mutableStateOf<WeatherData?>(null)
 
-    // Use a suspending function to perform the API call
-  fun getWeatherData(city: String) {
+
+    fun getWeatherData(city: String) {
+        uiState.value = Uistate.Loading
         viewModelScope.launch {
             try {
                 val weatherResponse = repo().apiInterface.getWeatherData(city)
-                weatherItems.value=weatherResponse
-                println("Weather data for $city: $weatherResponse")
+                weatherItems.value = weatherResponse
+                uiState.value = Uistate.Success(weatherResponse)
             } catch (e: Exception) {
-                println("Error fetching weather data: ${e.message}")
+                uiState.value = Uistate.error("N/W request failed")
             }
         }
     }
+
+
 }

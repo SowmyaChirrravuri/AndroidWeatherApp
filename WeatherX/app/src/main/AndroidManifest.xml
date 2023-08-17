@@ -22,10 +22,16 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- Declare your SecondActivity here -->
+        <activity
+            android:name=".SecondActivity"
+            android:label="Second Activity"
+            android:theme="@style/Theme.WeatherX">
+        </activity>
+
+    </application>
 </manifest>
