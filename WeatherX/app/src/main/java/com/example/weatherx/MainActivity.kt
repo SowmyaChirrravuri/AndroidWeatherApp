@@ -10,14 +10,12 @@ import androidx.activity.ComponentActivity
 
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import com.example.weatherx.Model.repo
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherx.databinding.ActivityMainBinding
-import com.example.weatherx.view.WeatherData
+import com.example.weatherx.viewModel.CITY_NAME_KEY
 
 import com.example.weatherx.viewModel.weatherViewModel
 
-const val CITY_NAME_KEY = "CITY"
-const val SHARE_PREF = "sharedPreferences"
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<weatherViewModel>()
@@ -28,12 +26,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val sharedpref = getSharedPreferences(SHARE_PREF, Context.MODE_PRIVATE)
-        editor = sharedpref.edit()
-
-
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -48,9 +40,11 @@ class MainActivity : ComponentActivity() {
             viewModel.getWeatherData(cityName)
 
         }
+
         binding.buttonLoadData.setOnClickListener {
-            val city = sharedpref.getString(CITY_NAME_KEY, "")
+            val city = viewModel.loadData(CITY_NAME_KEY)
             binding.editTextCity.setText(city)
+
         }
 
     }
@@ -82,7 +76,6 @@ class MainActivity : ComponentActivity() {
             progressBar.visibility = View.INVISIBLE
             buttonPerformRequest.isEnabled = true
         }
-        storeCityInSharedPreferences()
         navigateToNewScreen(uiState)
     }
 
@@ -94,9 +87,6 @@ class MainActivity : ComponentActivity() {
         Toast.makeText(this, uiState.message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun storeCityInSharedPreferences() {
-        editor.putString(CITY_NAME_KEY, cityName).commit()
-    }
 
     private fun navigateToNewScreen(uiState: Uistate.Success) {
         val intent = Intent(this, SecondActivity::class.java)

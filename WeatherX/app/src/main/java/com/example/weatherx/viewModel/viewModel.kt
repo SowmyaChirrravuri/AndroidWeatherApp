@@ -23,6 +23,7 @@ class weatherViewModel : ViewModel() {
     private lateinit var editor: SharedPreferences.Editor
     val uiState = MutableLiveData<Uistate>()
     val weatherItems = mutableStateOf<WeatherData?>(null)
+    val repository = repo()
 
 
 
@@ -30,14 +31,18 @@ class weatherViewModel : ViewModel() {
         uiState.value = Uistate.Loading
         viewModelScope.launch {
             try {
-                val weatherResponse = repo().apiInterface.getWeatherData(city)
+                val weatherResponse = repository.apiInterface.getWeatherData(city)
                 weatherItems.value = weatherResponse
                 uiState.value = Uistate.Success(weatherResponse)
+                repository.saveData(CITY_NAME_KEY,city)
             } catch (e: Exception) {
                 uiState.value = Uistate.error("N/W request failed")
             }
         }
     }
 
-
+    fun loadData(key:String): String? {
+        val city = repository.getData(key)
+        return city
+    }
 }
